@@ -1,22 +1,14 @@
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Stack;
+import java.util.*;
 
 // A Java program to print topological sorting of a DAG
 public class Graph {
-    // No. of vertices
-    private int N;
-
-    // Adjacency list as ArrayList of ArrayList's
-    private ArrayList<ArrayList<Integer>> adj;
+    // Adjacency list as HashMap of ArrayList<String>
+    private Map<String, ArrayList<String>> adj;
 
     // Constructor
-    public Graph(int n){
-        N = n;
-        adj = new ArrayList<ArrayList<Integer>>(n);
-        for (int i = 0; i < N; ++i){
-            adj.add(new ArrayList<Integer>());
-        }
+    public Graph(String key){
+        adj = new HashMap();
+        adj.put(key, new ArrayList<String>());
     }
 
     /**
@@ -24,8 +16,8 @@ public class Graph {
      * @param from
      * @param to
      */
-    public void addEdge(int from, int to){
-        adj.get(from).add(to);
+    public void addEdge(String from, String to){
+        adj.computeIfAbsent(from, x -> new ArrayList<>()).add(to);
     }
 
     /**
@@ -33,17 +25,23 @@ public class Graph {
      */
     public void topologicalSort(){
         // a stack to return vertices in reverse postorder
-        Stack<Integer> stack = new Stack<Integer>();
+        Stack<String> stack = new Stack<String>();
 
         // mark all vertices as not visited
-        boolean visited[] = new boolean[N];
-        for (boolean i : visited)
-            i = false;
+        Map<String, Boolean> visited = new HashMap();
+        Iterator it = adj.entrySet().iterator();
+        while (it.hasNext()){
+            Map.Entry mapElement = (Map.Entry)it.next();
+            visited.putIfAbsent(mapElement.getKey().toString(), false);
+        }
 
         // perform DFS on the graph recursively
-        for (int i = 0; i < N; i++){
-            if (!visited[i])
-                DFS(i, visited, stack);
+        it = visited.entrySet().iterator();
+        while (it.hasNext()){
+            Map.Entry mapElement = (Map.Entry)it.next();
+            boolean isVisited = (boolean)mapElement.getValue();
+            if (!isVisited)
+                DFS(mapElement.getKey().toString(), visited, stack);
         }
 
         // Print contents of stack
@@ -57,15 +55,31 @@ public class Graph {
      * @param visited
      * @param stack
      */
-    private void DFS(int i, boolean[] visited, Stack<Integer> stack){
-        visited[i] = true;
+    private void DFS(String i, Map<String, Boolean> visited, Stack<String> stack){
+        visited.put(i, true); // mark as visited
         // visit all the vertices adjacent to this vertex
-        Iterator<Integer> it = this.adj.get(i).iterator();
-        while(it.hasNext()){
-            i = it.next();
-            if(!visited[i])
-                DFS(i, visited, stack);
+        Iterator it = adj.entrySet().iterator();
+        while (it.hasNext()){
+            Map.Entry mapElement = (Map.Entry)it.next();
+            boolean isVisited = visited.get(mapElement.getKey().toString());
+            if (!isVisited)
+                DFS(mapElement.getKey().toString(), visited, stack);
         }
+
         stack.push(i);
+    }
+
+    public static void main(String args[]){
+
+        Graph g = new Graph("TELNET");
+        g.addEdge("TCPIP", "TELNET");
+        g.addEdge("NETCARD", "TELNET");
+        g.addEdge("NETCARD", "TCPIP");
+        g.addEdge("TCPIP", "DNS");
+        g.addEdge("NETCARD", "DNS");
+        g.addEdge("TCPIP", "BROWSER");
+        g.addEdge("HTML", "BROWSER");
+
+        g.topologicalSort();
     }
 }
