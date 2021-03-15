@@ -71,14 +71,14 @@ public class Graph {
 
     public static void main(String args[]){
 
-        Graph g = new Graph("TELNET");
-        g.addEdge("TCPIP", "TELNET");
-        g.addEdge("NETCARD", "TELNET");
-        g.addEdge("NETCARD", "TCPIP");
-        g.addEdge("TCPIP", "DNS");
-        g.addEdge("NETCARD", "DNS");
-        g.addEdge("TCPIP", "BROWSER");
-        g.addEdge("HTML", "BROWSER");
+        Graph g = new Graph("A");
+        g.addEdge("Z", "A");
+        g.addEdge("K", "A");
+        g.addEdge("K", "Z");
+        g.addEdge("Z", "Y");
+        g.addEdge("K", "Y");
+        g.addEdge("Z", "B");
+        g.addEdge("H", "B");
 
         g.topologicalSort();
     }
